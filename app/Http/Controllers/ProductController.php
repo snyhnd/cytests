@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Company;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(\Illuminate\Http\Request $request)
     {
         $query = Product::with('company');
 
-        // 商品名の部分一致検索
         if ($request->filled('keyword')) {
             $query->where('product_name', 'like', '%' . $request->keyword . '%');
         }
 
-        // 会社IDでの絞り込み
         if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }
@@ -28,37 +28,32 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'companies'));
     }
 
-    public function destroy($id)
-    {
-        Product::findOrFail($id)->delete();
-        return redirect()->route('products.index')->with('success', '商品を削除しました。');
-    }
-
     public function create()
     {
         $companies = Company::all();
         return view('products.create', compact('companies'));
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'product_name' => 'required|string|max:255',
-            'price' => 'required|integer',
-            'stock' => 'required|integer',
-            'comment' => 'nullable|string',
-            'company_id' => 'required|exists:companies,id',
-            'img_path' => 'nullable|image|max:2048',
-        ]);
+        DB::beginTransaction();
 
-        if ($request->hasFile('img_path')) {
-            $path = $request->file('img_path')->store('images', 'public');
-            $validated['img_path'] = $path;
+        try {
+            $data = $request->validated();
+
+            if ($request->hasFile('img_path')) {
+                $path = $request->file('img_path')->store('images', 'public');
+                $data['img_path'] = $path;
+            }
+
+            Product::create($data);
+
+            DB::commit();
+            return redirect()->route('products.index')->with('success', '商品を登録しました。');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => '商品登録中にエラーが発生しました。']);
         }
-
-        Product::create($validated);
-
-        return redirect()->route('products.index')->with('success', '商品を登録しました。');
     }
 
     public function show($id)
@@ -74,32 +69,37 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'companies'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, $id)
     {
-        $request->validate([
-            'product_name' => 'required|string|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|integer',
-            'stock' => 'required|integer',
-            'comment' => 'nullable|string',
-            'img_path' => 'nullable|image|max:2048',
-        ]);
+        DB::beginTransaction();
 
-        $product = Product::findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
+            $data = $request->validated();
 
-        $product->product_name = $request->product_name;
-        $product->company_id = $request->company_id;
-        $product->price = $request->price;
-        $product->stock = $request->stock;
-        $product->comment = $request->comment;
+            if ($request->hasFile('img_path')) {
+                $path = $request->file('img_path')->store('images', 'public');
+                $data['img_path'] = $path;
+            }
 
-        if ($request->hasFile('img_path')) {
-            $path = $request->file('img_path')->store('images', 'public');
-            $product->img_path = $path;
+            $product->update($data);
+
+            DB::commit();
+            return redirect()->route('products.show', $product->id)->with('success', '商品情報を更新しました。');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => '商品更新中にエラーが発生しました。']);
         }
+    }
 
-        $product->save();
-
-        return redirect()->route('products.show', $product->id)->with('success', '商品情報を更新しました。');
+    public function destroy($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+            return redirect()->route('products.index')->with('success', '商品を削除しました。');
+        } catch (\Exception $e) {
+            return redirect()->route('products.index')->withErrors(['error' => '商品削除中にエラーが発生しました。']);
+        }
     }
 }
