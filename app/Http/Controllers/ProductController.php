@@ -5,12 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Company;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 
+/**
+ * 商品管理に関する操作を行うコントローラ
+ */
 class ProductController extends Controller
 {
-    public function index(\Illuminate\Http\Request $request)
+    /**
+     * 商品一覧を表示
+     *
+     * @param Request $request 検索キーワード・メーカーIDなどのクエリパラメータ
+     * @return \Illuminate\View\View
+     */
+    public function index(Request $request)
     {
         $query = Product::with('company');
 
@@ -28,12 +38,23 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'companies'));
     }
 
+    /**
+     * 商品作成フォームを表示
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         $companies = Company::all();
         return view('products.create', compact('companies'));
     }
 
+    /**
+     * 新しい商品を登録
+     *
+     * @param StoreProductRequest $request バリデーション済みの商品データ
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(StoreProductRequest $request)
     {
         DB::beginTransaction();
@@ -56,12 +77,24 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * 商品詳細を表示
+     *
+     * @param int $id 商品ID
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
         $product = Product::with('company')->findOrFail($id);
         return view('products.show', compact('product'));
     }
 
+    /**
+     * 商品編集フォームを表示
+     *
+     * @param int $id 商品ID
+     * @return \Illuminate\View\View
+     */
     public function edit($id)
     {
         $product = Product::findOrFail($id);
@@ -69,6 +102,13 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'companies'));
     }
 
+    /**
+     * 商品情報を更新
+     *
+     * @param UpdateProductRequest $request バリデーション済みの商品データ
+     * @param int $id 商品ID
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(UpdateProductRequest $request, $id)
     {
         DB::beginTransaction();
@@ -92,6 +132,12 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * 商品を削除
+     *
+     * @param int $id 商品ID
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         try {

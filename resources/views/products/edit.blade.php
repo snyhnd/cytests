@@ -8,7 +8,6 @@
         @csrf
         @method('PUT')
 
-        
         <div class="row mb-3">
             <label class="col-md-3 col-form-label">ID</label>
             <div class="col-md-9 d-flex align-items-center">
@@ -19,14 +18,14 @@
         <div class="row mb-3">
             <label class="col-md-3 col-form-label">商品名 <span class="text-danger">*</span></label>
             <div class="col-md-9">
-                <input type="text" name="product_name" class="form-control" value="{{ old('product_name', $product->product_name) }}" required>
+                <input type="text" name="product_name" class="form-control" value="{{ old('product_name', $product->product_name) }}">
             </div>
         </div>
 
         <div class="row mb-3">
             <label class="col-md-3 col-form-label">メーカー名 <span class="text-danger">*</span></label>
             <div class="col-md-9">
-                <select name="company_id" class="form-select" required>
+                <select name="company_id" class="form-select">
                     <option value="">選択してください</option>
                     @foreach($companies as $company)
                         <option value="{{ $company->id }}" {{ $product->company_id == $company->id ? 'selected' : '' }}>
@@ -40,14 +39,14 @@
         <div class="row mb-3">
             <label class="col-md-3 col-form-label">価格 <span class="text-danger">*</span></label>
             <div class="col-md-9">
-                <input type="number" name="price" class="form-control" value="{{ old('price', $product->price) }}" required>
+                <input type="number" name="price" class="form-control" value="{{ old('price', $product->price) }}">
             </div>
         </div>
 
         <div class="row mb-3">
             <label class="col-md-3 col-form-label">在庫数 <span class="text-danger">*</span></label>
             <div class="col-md-9">
-                <input type="number" name="stock" class="form-control" value="{{ old('stock', $product->stock) }}" required>
+                <input type="number" name="stock" class="form-control" value="{{ old('stock', $product->stock) }}">
             </div>
         </div>
 
@@ -73,7 +72,6 @@
             </div>
         </div>
 
-        {{-- ボタン --}}
         <div class="mb-3">
             <button type="submit" class="btn btn-primary me-2">更新</button>
             <a href="{{ route('products.show', $product->id) }}" class="btn btn-secondary">戻る</a>

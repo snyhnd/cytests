@@ -4,44 +4,74 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * 商品更新のためのバリデーションリクエストクラス
+ */
 class UpdateProductRequest extends FormRequest
 {
-    public function authorize()
+    /**
+     * このリクエストをユーザーが実行できるかを判定
+     *
+     * @return bool 認可する場合はtrue
+     */
+    public function authorize(): bool
     {
-        return true;
+        return true; // 認証済みユーザーに制限する場合は条件を追加
     }
 
-    public function rules()
+    /**
+     * バリデーションルールを定義
+     *
+     * @return array<string, mixed> バリデーションルール配列
+     */
+    public function rules(): array
     {
         return [
             'product_name' => 'required|string|max:255',
-            'price' => 'required|integer',
-            'stock' => 'required|integer',
-            'comment' => 'nullable|string',
             'company_id' => 'required|exists:companies,id',
+            'price' => 'required|integer|min:0',
+            'stock' => 'required|integer|min:0',
+            'comment' => 'nullable|string',
             'img_path' => 'nullable|image|max:2048',
         ];
     }
 
-    public function attributes()
+    /**
+     * 項目名の属性ラベルを定義
+     *
+     * @return array<string, string> 項目キーと表示名の対応
+     */
+    public function attributes(): array
     {
         return [
             'product_name' => '商品名',
+            'company_id' => 'メーカー名',
             'price' => '価格',
             'stock' => '在庫数',
-            'company_id' => 'メーカー',
+            'comment' => 'コメント',
             'img_path' => '商品画像',
         ];
     }
 
-    public function messages()
+    /**
+     * バリデーションエラーメッセージを定義
+     *
+     * @return array<string, string> バリデーションルールに対応するエラーメッセージ
+     */
+    public function messages(): array
     {
         return [
-            'required' => ':attribute は必須です。',
-            'integer' => ':attribute は数値で入力してください。',
-            'max' => ':attribute は :max 文字以内で入力してください。',
-            'image' => ':attribute は画像ファイルを選択してください。',
-            'exists' => '選択された :attribute は存在しません。',
+            'product_name.required' => '商品名は必須項目です。',
+            'company_id.required' => 'メーカー名を選択してください。',
+            'company_id.exists' => '選択されたメーカーは存在しません。',
+            'price.required' => '価格は必須です。',
+            'price.integer' => '価格は整数で入力してください。',
+            'price.min' => '価格は0以上でなければなりません。',
+            'stock.required' => '在庫数は必須です。',
+            'stock.integer' => '在庫数は整数で入力してください。',
+            'stock.min' => '在庫数は0以上でなければなりません。',
+            'img_path.image' => 'アップロードできるのは画像ファイルのみです。',
+            'img_path.max' => '画像サイズは2MB以下にしてください。',
         ];
     }
 }
