@@ -66,6 +66,9 @@
             <label class="col-md-3 col-form-label">コメント</label>
             <div class="col-md-9">
                 <textarea name="comment" class="form-control" rows="3">{{ old('comment', $product->comment) }}</textarea>
+                @if($errors->has('comment'))
+                        <p>{{ $errors->first('comment') }}</p>
+                @endif
             </div>
         </div>
 

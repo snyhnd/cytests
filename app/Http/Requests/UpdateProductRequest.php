@@ -31,7 +31,7 @@ class UpdateProductRequest extends FormRequest
             'company_id' => 'required|exists:companies,id',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
-            'comment' => 'nullable|string',
+            'comment' => 'nullable|string|max:10',
             'img_path' => 'nullable|image|max:2048',
         ];
     }
@@ -70,6 +70,7 @@ class UpdateProductRequest extends FormRequest
             'stock.required' => '在庫数は必須です。',
             'stock.integer' => '在庫数は整数で入力してください。',
             'stock.min' => '在庫数は0以上でなければなりません。',
+            'comment.max' => 'コメントは10文字以内に入力してください。',
             'img_path.image' => 'アップロードできるのは画像ファイルのみです。',
             'img_path.max' => '画像サイズは2MB以下にしてください。',
         ];

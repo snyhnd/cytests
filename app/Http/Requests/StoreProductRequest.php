@@ -32,7 +32,7 @@ class StoreProductRequest extends FormRequest
             'company_id' => 'required|exists:companies,id',
             'price' => 'required|integer',
             'stock' => 'required|integer',
-            'comment' => 'nullable|string',
+            'comment' => 'nullable|string|max:10',
             'img_path' => 'nullable|image|max:2048',
         ];
     }
@@ -52,6 +52,7 @@ class StoreProductRequest extends FormRequest
             'price.integer' => '価格は整数で入力してください。',
             'stock.required' => '在庫数は必須です。',
             'stock.integer' => '在庫数は整数で入力してください。',
+            'comment.max' => 'コメントは10文字以内に入力してください。',
             'img_path.image' => '画像ファイルを選択してください。',
             'img_path.max' => '画像サイズは2MB以下にしてください。',
         ];
