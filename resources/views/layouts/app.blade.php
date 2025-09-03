@@ -18,6 +18,12 @@
 
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    
+     <title>@yield('title', '商品管理')</title>
+    {{-- CSRFメタ（Ajax用） --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- jQuery（指定のCDN） --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="app">
@@ -78,6 +84,8 @@
         <main class="py-4">
             @yield('content')
         </main>
+        {{-- 各ページ専用の外部JSを差し込む場所 --}}
+    @stack('scripts')
     </div>
 </body>
 </html>
